@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { config } from "./config/index.js";
 import userRoutes from "./routes/user.route.js";
 import signupRoutes from "./routes/auth.route.js";
+import cors from "cors";
 
 mongoose
   .connect(config.mongo_uri)
@@ -16,6 +17,16 @@ mongoose
 const app = express();
 
 app.use(express.json());
+
+const corsOptions = {
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", signupRoutes);
