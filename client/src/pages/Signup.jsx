@@ -28,14 +28,14 @@ const Signup = () => {
         headers: { "Content-Type": "application/json" },
       });
 
-      const data = response;
+      const data = response.data;
 
       if (data.success === false) {
         return setErrorMessage(data.message);
       }
 
-      if (data.success == true) {
-        return navigate("/sign-in");
+      if (data.success === true) {
+        navigate("/sign-in");
       }
 
       setLoading(false);
