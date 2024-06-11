@@ -1,25 +1,47 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Label, TextInput, Button } from "flowbite-react";
-import axios, { Axios } from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { Label, TextInput, Button, Alert, Spinner } from "flowbite-react";
+import axios from "axios";
 
 const Signup = () => {
   const [formData, setFormData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.username || !formData.email || !formData.password) {
+      return setErrorMessage("Please fill out all Fields!");
+    }
+
     try {
+      setLoading(true);
+      setErrorMessage(null);
+
       const response = await axios.post("/api/auth/signup", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      const data = await response.json();
-      console.log(data);
+      const data = response;
+
+      if (data.success === false) {
+        return setErrorMessage(data.message);
+      }
+
+      if (data.success == true) {
+        return navigate("/sign-in");
+      }
+
+      setLoading(false);
     } catch (error) {
+      setErrorMessage(error.message);
+      setLoading(false);
       console.log("Error while Signing Up User!", error);
     }
   };
@@ -70,8 +92,19 @@ const Signup = () => {
                 onChange={handleChange}
               />
             </div>
-            <Button gradientDuoTone="purpleToPink" type="submit">
-              Sign Up
+            <Button
+              gradientDuoTone="purpleToPink"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </Button>
           </form>
           <div className="flex gap-2 text-sm mt-5">
@@ -80,6 +113,11 @@ const Signup = () => {
               Sign In
             </Link>
           </div>
+          {errorMessage && (
+            <Alert className="mt-5" color="failure">
+              {errorMessage}
+            </Alert>
+          )}
         </div>
       </div>
     </div>
