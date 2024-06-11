@@ -28,7 +28,7 @@ const Signin = () => {
         headers: { "Content-Type": "application/json" },
       });
 
-      const data = response;
+      const data = response.data;
 
       if (data.success === false) {
         return setErrorMessage(data.message);
