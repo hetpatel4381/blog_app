@@ -9,12 +9,11 @@ import { signInSuccess } from "../redux/user/UserSlice.jsx";
 import { useNavigate } from "react-router-dom";
 
 const OAuth = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleGoogleClick = async () => {
     const auth = getAuth(app);
-
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
     try {

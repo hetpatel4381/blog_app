@@ -90,3 +90,77 @@ export const signin = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Error Encounter while login in User!");
   }
 });
+
+export const googleAuth = asyncHandler(async (req, res) => {
+  try {
+    const { name, email, photoURL } = req.body;
+
+    if ([name, email, photoURL].some((field) => field?.trim() === "")) {
+      throw new ApiError(400, "Authentication Failed");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+      const token = jwt.sign({ id: validUser._id }, config.jwt_key);
+
+      const loggedInUser = await User.findById(validUser._id).select(
+        "-password"
+      );
+
+      const options = {
+        httpOnly: true,
+        secure: true,
+      };
+
+      return res
+        .status(200)
+        .cookie("accessToken", token, options)
+        .json(
+          new ApiResponse(
+            200,
+            { user: loggedInUser },
+            "User Logged In Successfully!"
+          )
+        );
+    } else {
+      const generetedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+
+      const hashPassword = bcryptjs.hashSync(generetedPassword, 10);
+
+      const newUser = await User.create({
+        username:
+          name.toLowerCase().split(" ").join(" ") +
+          Math.random().toString(9).slice(-4),
+        email,
+        password: hashPassword,
+        profilePicture: photoURL,
+      });
+
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, config.jwt_key);
+
+      const userCreated = await User.findById(newUser._id).select("-password");
+
+      const options = {
+        httpOnly: true,
+        secure: true,
+      };
+
+      return res
+        .status(200)
+        .cookie("accessToken", token, options)
+        .json(
+          new ApiResponse(
+            200,
+            { user: userCreated },
+            "User Logged In Successfully!"
+          )
+        );
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
