@@ -2,12 +2,21 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Label, TextInput, Button, Alert, Spinner } from "flowbite-react";
 import axios from "axios";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/UserSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 const Signin = () => {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+  // this is without state management.
+  // const [errorMessage, setErrorMessage] = useState(null);
+  // const [loading, setLoading] = useState(false);
 
+  const { loading, error: errorMessage } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -17,12 +26,17 @@ const Signin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      return setErrorMessage("Please fill out all Fields!");
+      // return setErrorMessage("Please fill out all Fields!");
+      return dispatch(signInFailure("Please fill out all Fields!"));
     }
 
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      // this is used without state management.
+      // setLoading(true);
+      // setErrorMessage(null);
+
+      // with state management.
+      dispatch(signInStart());
 
       const response = await axios.post("/api/auth/signin", formData, {
         headers: { "Content-Type": "application/json" },
@@ -31,18 +45,23 @@ const Signin = () => {
       const data = response.data;
 
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        dispatch(signInFailure(data.message));
       }
 
       if (data.success == true) {
+        dispatch(signInSuccess(data));
         return navigate("/");
       }
 
-      setLoading(false);
+      // setLoading(false);
     } catch (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
-      console.log("Error while Signing Up User!", error);
+      // this is without using state management.
+      // setErrorMessage(error.message);
+      // setLoading(false);
+
+      // with state management.
+      dispatch(signInFailure(error.message));
+      console.log("Error while Signing Up User!", error.message);
     }
   };
 
