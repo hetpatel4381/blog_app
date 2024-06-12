@@ -102,11 +102,9 @@ export const googleAuth = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      const token = jwt.sign({ id: validUser._id }, config.jwt_key);
+      const token = jwt.sign({ id: user._id }, config.jwt_key);
 
-      const loggedInUser = await User.findById(validUser._id).select(
-        "-password"
-      );
+      const loggedInUser = await User.findById(user._id).select("-password");
 
       const options = {
         httpOnly: true,
