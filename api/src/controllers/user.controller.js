@@ -1,4 +1,5 @@
 import ApiError from "../utils/api.error.js";
+import { ApiResponse } from "../utils/api.response.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import bcryptjs from "bcryptjs";
 import User from "../models/user.model.js";
@@ -49,8 +50,23 @@ export const updateUser = asyncHandler(async (req, res, next) => {
       { new: true }
     );
     const { password, ...rest } = updatedUser._doc;
-    res.status(200).json(rest);
+    res
+      .status(200)
+      .json(new ApiResponse(201), { user: rest }, "User Updated Successfully!");
   } catch (error) {
     next(error);
+  }
+});
+
+export const deleteUser = asyncHandler(async (req, res) => {
+  try {
+    if (req.user.id !== req.params.userId) {
+      return new ApiError(403, "You are not allowed to delete this user!");
+    }
+
+    await User.findByIdAndDelete(req.params.userId);
+    res.status(200).json(new ApiResponse(200), "User Deleted Successfully!");
+  } catch (error) {
+    return new ApiError(500, "Internal Server Error");
   }
 });
