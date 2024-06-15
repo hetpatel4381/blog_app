@@ -4,6 +4,7 @@ import { config } from "./config/index.js";
 import userRoutes from "./routes/user.route.js";
 import signupRoutes from "./routes/auth.route.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 mongoose
   .connect(config.mongo_uri)
@@ -27,6 +28,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(cookieParser());
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", signupRoutes);
