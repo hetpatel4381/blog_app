@@ -48,25 +48,31 @@ export const updateUser = asyncHandler(async (req, res, next) => {
         },
       },
       { new: true }
-    );
-    const { password, ...rest } = updatedUser._doc;
-    res
+    ).select("-password");
+
+    if (!updatedUser) {
+      throw new ApiError(500, "Something went wrong while Updating the User!");
+    }
+
+    return res
       .status(200)
-      .json(new ApiResponse(201), { user: rest }, "User Updated Successfully!");
+      .json(new ApiResponse(200, updatedUser, "User Updated Successfully"));
   } catch (error) {
     next(error);
   }
 });
 
-export const deleteUser = asyncHandler(async (req, res) => {
+export const deleteUser = asyncHandler(async (req, res, next) => {
   try {
     if (req.user.id !== req.params.userId) {
-      return new ApiError(403, "You are not allowed to delete this user!");
+      return next(
+        new ApiError(403, "You are not allowed to delete this user!")
+      );
     }
 
     await User.findByIdAndDelete(req.params.userId);
-    res.status(200).json(new ApiResponse(200), "User Deleted Successfully!");
+    res.status(200).json(new ApiResponse(200, "User Deleted Successfully!"));
   } catch (error) {
-    return new ApiError(500, "Internal Server Error");
+    next(new ApiError(500, "Internal Server Error"));
   }
 });

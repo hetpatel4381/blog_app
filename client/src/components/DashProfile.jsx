@@ -52,7 +52,6 @@ const DashProfile = () => {
   }, [imageFile]);
 
   const uploadImage = () => {
-    // console.log("Uploading Image...");
     setImageFileUploading(true);
     setImageFileUploadError(null);
     const storage = getStorage(app);
@@ -95,10 +94,12 @@ const DashProfile = () => {
     e.preventDefault();
     setUpdateUserError(null);
     setUpdateUserSuccess(null);
+
     if (Object.keys(formData).length === 0) {
       setUpdateUserError("No changes made.");
       return;
     }
+
     if (imageFileUploading) {
       setUpdateUserError("Please wait for Image to Upload");
       return;
@@ -113,16 +114,16 @@ const DashProfile = () => {
 
       const data = res.data;
 
-      if (data.success === false) {
-        dispatch(updateFailure());
+      if (!data.success) {
+        dispatch(updateFailure(data.message));
         setUpdateUserError(data.message);
       } else {
-        dispatch(updateSuccess(data));
+        dispatch(updateSuccess(data.message)); // Update the state with the new user data
         setUpdateUserSuccess("User's Profile Updated Successfully!");
       }
     } catch (error) {
       dispatch(updateFailure(error.message));
-      setUpdateUserError(data.message);
+      setUpdateUserError(error.message);
     }
   };
 
