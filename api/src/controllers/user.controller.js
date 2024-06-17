@@ -76,3 +76,14 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
     next(new ApiError(500, "Internal Server Error"));
   }
 });
+
+export const signOut = asyncHandler(async (req, res, next) => {
+  try {
+    return res
+      .clearCookie("accessToken")
+      .status(200)
+      .json(new ApiResponse(200, "User Signed Out Successfully!"));
+  } catch (error) {
+    next(new ApiError(400, "Error while signing out user!"));
+  }
+});
