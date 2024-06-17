@@ -12,6 +12,8 @@ import { useState } from "react";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { createPath, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { htmlToText } from "html-to-text";
 
 const CreatePost = () => {
   const [file, setFile] = useState(null);
@@ -61,20 +63,20 @@ const CreatePost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("/api/post/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      const plainTextContent = htmlToText(formData.content, {
+        wordwrap: 130,
       });
-      const data = await res.json();
-      if (!res.ok) {
+
+      const finalFormData = { ...formData, content: plainTextContent };
+
+      const res = await axios.post("/api/post/create", finalFormData);
+      const data = await res.data;
+      if (!data.success) {
         setPublishError(data.message);
         return;
       }
 
-      if (res.ok) {
+      if (data.success) {
         setPublishError(null);
         navigate(`/post/${data.slug}`);
       }
