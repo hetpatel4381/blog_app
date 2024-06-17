@@ -67,7 +67,10 @@ export const signin = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Invalid Credentials!");
     }
 
-    const token = jwt.sign({ id: validUser._id }, config.jwt_key);
+    const token = jwt.sign(
+      { id: validUser._id, isAdmin: validUser.isAdmin },
+      config.jwt_key
+    );
 
     const loggedInUser = await User.findById(validUser._id).select("-password");
 
@@ -102,7 +105,10 @@ export const googleAuth = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      const token = jwt.sign({ id: user._id }, config.jwt_key);
+      const token = jwt.sign(
+        { id: user._id, isAdmin: user.isAdmin },
+        config.jwt_key
+      );
 
       const loggedInUser = await User.findById(user._id).select("-password");
 
@@ -138,7 +144,10 @@ export const googleAuth = asyncHandler(async (req, res) => {
       });
 
       await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, config.jwt_key);
+      const token = jwt.sign(
+        { id: newUser._id, isAdmin: newUser.isAdmin },
+        config.jwt_key
+      );
 
       const userCreated = await User.findById(newUser._id).select("-password");
 
