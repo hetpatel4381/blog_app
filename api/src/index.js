@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { config } from "./config/index.js";
 import userRoutes from "./routes/user.route.js";
 import signupRoutes from "./routes/auth.route.js";
+import postRoutes from "./routes/post.route.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -32,6 +33,7 @@ app.use(cookieParser());
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", signupRoutes);
+app.use("/api/post", postRoutes);
 
 app.listen(config.port, () => {
   console.log(`Server is running on port 3000!!`);
